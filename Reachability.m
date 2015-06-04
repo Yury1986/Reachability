@@ -493,26 +493,26 @@ static void TMReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkRea
 	if(temp == ReachableViaWWAN)
 	{
         // Updated for the fact that we have CDMA phones now!
-		return NSLocalizedString(@"WWAN", @"");
+		return NSLocalizedString(@"wwan", @"");
 	}
 	if (temp == ReachableViaWiFi) 
 	{
-		return NSLocalizedString(@"WiFi", @"");
+		return NSLocalizedString(@"wifi", @"");
 	}
 	if (temp == ReachableVia2G)
 	{
-		return NSLocalizedString(@"2G", @"");
+		return NSLocalizedString(@"2g", @"");
 	}
 	if (temp == ReachableVia3G)
 	{
-		return NSLocalizedString(@"3G", @"");
+		return NSLocalizedString(@"3g", @"");
 	}
 	if (temp == ReachableVia4G)
 	{
-		return NSLocalizedString(@"4G", @"");
+		return NSLocalizedString(@"4g", @"");
 	}
 	
-	return NSLocalizedString(@"NoConnection", @"");
+	return NSLocalizedString(@"noconnection", @"");
 }
 
 -(NSString*)currentReachabilityFlags
