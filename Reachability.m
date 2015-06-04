@@ -488,7 +488,7 @@ static void TMReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkRea
 
 -(NSString*)currentReachabilityString
 {
-	NetworkStatus temp = [self currentReachabilityStatus];
+	NetworkStatus temp = [self networkStatusForFlags:self.reachabilityFlags];
 	
 	if(temp == ReachableViaWWAN)
 	{
@@ -517,7 +517,7 @@ static void TMReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkRea
 
 -(NSString*)currentReachabilityFlags
 {
-    return [self networkStatusForFlags:self.reachabilityFlags];
+    return reachabilityFlags([self reachabilityFlags]);
 }
 
 #pragma mark - Callback function calls this method
