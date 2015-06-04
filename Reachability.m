@@ -499,15 +499,15 @@ static void TMReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkRea
 	{
 		return NSLocalizedString(@"WiFi", @"");
 	}
-	if (temp == ReachableVia2G
+	if (temp == ReachableVia2G)
 	{
 		return NSLocalizedString(@"2G", @"");
 	}
-	if (temp == ReachableVia2G
+	if (temp == ReachableVia3G)
 	{
 		return NSLocalizedString(@"3G", @"");
 	}
-	if (temp == ReachableVia2G
+	if (temp == ReachableVia4G)
 	{
 		return NSLocalizedString(@"4G", @"");
 	}
