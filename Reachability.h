@@ -43,8 +43,11 @@ extern NSString *const kReachabilityChangedNotification;
 typedef NS_ENUM(NSInteger, NetworkStatus) {
     // Apple NetworkStatus Compatible Names.
     NotReachable = 0,
-    ReachableViaWiFi = 2,
-    ReachableViaWWAN = 1
+    ReachableViaWiFi,
+    ReachableViaWWAN,
+    ReachableVia2G,
+    ReachableVia3G,
+    ReachableVia4G,
 };
 
 @class Reachability;

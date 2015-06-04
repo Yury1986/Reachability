@@ -34,6 +34,8 @@
 #import <ifaddrs.h>
 #import <netdb.h>
 
+#import <CoreTelephony/CTTelephonyNetworkInfo.h>
+
 
 NSString *const kReachabilityChangedNotification = @"kReachabilityChangedNotification";
 
@@ -381,6 +383,81 @@ static void TMReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkRea
 
 
 #pragma mark - reachability status stuff
+- (NetworkStatus)networkStatusForFlags:(SCNetworkReachabilityFlags)flags
+{
+    if ((flags & kSCNetworkReachabilityFlagsReachable) == 0)
+    {
+        // The target host is not reachable.
+        return NotReachable;
+    }
+
+    NetworkStatus returnValue = NotReachable;
+
+    if ((flags & kSCNetworkReachabilityFlagsConnectionRequired) == 0)
+    {
+        /*
+         If the target host is reachable and no connection is required then we'll assume (for now) that you're on Wi-Fi...
+         */
+        returnValue = ReachableViaWiFi;
+    }
+
+    if ((((flags & kSCNetworkReachabilityFlagsConnectionOnDemand ) != 0) ||
+        (flags & kSCNetworkReachabilityFlagsConnectionOnTraffic) != 0))
+    {
+        /*
+         ... and the connection is on-demand (or on-traffic) if the calling application is using the CFSocketStream or higher APIs...
+         */
+
+        if ((flags & kSCNetworkReachabilityFlagsInterventionRequired) == 0)
+        {
+            /*
+             ... and no [user] intervention is needed...
+             */
+            returnValue = ReachableViaWiFi;
+        }
+    }
+
+    if ((flags & kSCNetworkReachabilityFlagsIsWWAN) == kSCNetworkReachabilityFlagsIsWWAN)
+    {
+//		/*
+//         ... but WWAN connections are OK if the calling application is using the CFNetwork APIs.
+//         */
+//		returnValue = ReachableViaWWAN;
+
+        if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 7.0) {
+            CTTelephonyNetworkInfo *info = [[CTTelephonyNetworkInfo alloc] init];
+            NSString *currentRadioAccessTechnology = info.currentRadioAccessTechnology;
+            if (currentRadioAccessTechnology) {
+                if ([currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyLTE]) {
+                    returnValue = ReachableVia4G;
+                } else if ([currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyEdge] || [currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyGPRS]) {
+                    returnValue = ReachableVia2G;
+                } else {
+                    returnValue = ReachableVia3G;
+                }
+            }
+            return returnValue;
+        }
+
+        if((flags & kSCNetworkReachabilityFlagsReachable) == kSCNetworkReachabilityFlagsReachable) {
+
+            if ((flags & kSCNetworkReachabilityFlagsTransientConnection) == kSCNetworkReachabilityFlagsTransientConnection) {
+
+                returnValue = ReachableVia3G;
+
+                if((flags & kSCNetworkReachabilityFlagsConnectionRequired) == kSCNetworkReachabilityFlagsConnectionRequired) {
+                    returnValue = ReachableVia2G;
+                }
+            }
+            else {
+                returnValue = ReachableViaWWAN;
+            }
+        }
+    }
+
+    return returnValue;
+}
+
 
 -(NetworkStatus)currentReachabilityStatus
 {
@@ -416,19 +493,31 @@ static void TMReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkRea
 	if(temp == ReachableViaWWAN)
 	{
         // Updated for the fact that we have CDMA phones now!
-		return NSLocalizedString(@"Cellular", @"");
+		return NSLocalizedString(@"WWAN", @"");
 	}
 	if (temp == ReachableViaWiFi) 
 	{
 		return NSLocalizedString(@"WiFi", @"");
 	}
+	if (temp == ReachableVia2G
+	{
+		return NSLocalizedString(@"2G", @"");
+	}
+	if (temp == ReachableVia2G
+	{
+		return NSLocalizedString(@"3G", @"");
+	}
+	if (temp == ReachableVia2G
+	{
+		return NSLocalizedString(@"4G", @"");
+	}
 	
-	return NSLocalizedString(@"No Connection", @"");
+	return NSLocalizedString(@"NoConnection", @"");
 }
 
 -(NSString*)currentReachabilityFlags
 {
-    return reachabilityFlags([self reachabilityFlags]);
+    return [self networkStatusForFlags:self.reachabilityFlags];
 }
 
 #pragma mark - Callback function calls this method
